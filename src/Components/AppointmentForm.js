@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import "../Styles/AppointmentForm.css";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -16,7 +17,7 @@ function AppointmentForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
     // Validate form inputs
@@ -54,19 +55,35 @@ function AppointmentForm() {
       return;
     }
 
-    // Reset form fields and errors after successful submission
-    setPatientName("");
-    setPatientNumber("");
-    setPatientGender("default");
-    setAppointmentTime("");
-    setPreferredMode("default");
-    setFormErrors({});
+    try {
+      
+      const res = await axios.post('http://localhost:5000/api/forms/submit', { patientName, patientNumber, patientGender, appointmentTime, preferredMode, },);
+  
+      console.log({res});
+      
+  console.log({patientName,patientNumber,patientGender,appointmentTime, preferredMode,});
+  // Reset form fields and errors after successful submission
+  setPatientName("");
+  setPatientNumber("");
+  setPatientGender("default");
+  setAppointmentTime("");
+  setPreferredMode("default");
+  setFormErrors({});
 
-    toast.success("Appointment Scheduled !", {
-      position: toast.POSITION.TOP_CENTER,
-      onOpen: () => setIsSubmitted(true),
-      onClose: () => setIsSubmitted(false),
-    });
+  toast.success("Appointment Scheduled !", {
+    position: toast.POSITION.TOP_CENTER,
+    onOpen: () => setIsSubmitted(true),
+    onClose: () => setIsSubmitted(false),
+  });
+    } catch (error) {
+      console.log('something went wrong while submiting appointment form ', error);
+      toast.error("Failed to schedule appointment. Please try again later.", {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      
+    }
+
+
   };
 
   return (
